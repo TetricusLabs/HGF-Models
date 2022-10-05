@@ -18,6 +18,38 @@ from HGF.hgf_config import *
 ## MAIN FUNCTIONS ##
 ####################
 
+def softmax_mu3(r=None, infStates=None, trans=None):
+
+    pop = 0
+
+    if r['c_obs']['predorpost'] == 1:
+        pop = 2
+
+    n = infStates.shape[0]
+    logp = np.full([n, 1], np.nan)
+    yhat = np.full([n, 1], np.nan)
+    res = np.full([n, 1], np.nan)
+
+    nc = infStates.shape[2]
+    states = np.squeeze(infStates[:, 0, :, pop])
+    mu3 = np.squeeze(infStates[:, 2, 0, 2])
+    y = r['y'][:, 0]
+    # TODO
+    # states = np.delete(states, [])
+    # mu3 = np.delete(mu3, obj=:, r['irr'])
+    y = np.delete(y, r['irr'])
+    be = np.exp(- mu3)
+    be = np.matlib.repmat(be, 1, nc)
+    Z = np.sum(np.exp(np.multiply(be, states)), 1)
+    Z = np.matlib.repmat(Z, 1, nc)
+    prob = np.exp(np.multiply(be, states)) / Z
+    probc = prob(sub2ind(prob.shape, np.arange(1, len(y)+1), np.transpose(y)))
+    reg = not ismember(np.arange(1, n+1), r['irr'])
+    logp[reg] = np.log(probc)
+    yhat[reg] = probc
+    res[reg] = - np.log(probc)
+    return logp, yhat, res
+
 def hgf_binary(r, p, trans=False):
     """calculate trajectorie of agent's representations under HGF"""
     
@@ -450,6 +482,12 @@ def unitsq_sqm_transp(r, ptrans):
     pstruct['ze'] = pvec[0]
     return([pvec, pstruct])
 
+def softmax_mu3_transp(r, ptrans):
+  return {
+      'pvec': np.array([]),
+      'pstruct': {}
+  }
+
 
 ## Calculations optimization
 
@@ -588,6 +626,21 @@ def unitsq_sgm(r, infStates, ptrans):
     return(logp, y_hat, res)
 
 ## helper functions
+
+def sub2ind(array_shape, rows, cols):
+    ind = rows*array_shape[1] + cols
+    ind[ind < 0] = -1
+    ind[ind >= array_shape[0]*array_shape[1]] = -1
+    return ind
+
+def ismember(a_vec, b_vec):
+
+    bool_ind = np.isin(a_vec, b_vec)
+    common = a[bool_ind]
+    common_unique, common_inv = np.unique(common, return_inverse=True)
+    b_unique, b_ind = np.unique(b_vec, return_index=True)
+    common_ind = b_ind[np.isin(b_unique, common_unique, assume_unique=True)]
+    return bool_ind, common_ind[common_inv]
 
 def _unpack_para(p, r):
     """inside function, not to be called from outside

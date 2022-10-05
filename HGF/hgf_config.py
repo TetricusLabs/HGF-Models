@@ -17,6 +17,19 @@ from scipy import optimize
 
 # perceptual models
 
+
+def softmax_mu3_config():    
+    
+    c = {}
+    c['predorpost'] = 1
+    c['model'] = 'softmax_mu3'
+
+    c['priormus'] = np.array([])
+    c['priorsas'] = np.array([])
+    c['prc_fun'] = 'softmax_mu3'
+    c['transp_prc_fun'] = 'softmax_mu3_transp'
+    return c
+
 def hgf_binary_config():
     """contains config for the Hierarchical Gaussian Filter (HGF)
     for binary inputs in the absence of perceptual uncertainty"""
@@ -341,6 +354,10 @@ def bayes_optimal_config():
     
     # initiate a config data dict
     c = {}
+    
+    #TODO: Bayes model has not included this line, but we need it for softmax_mu3
+    # Lets set it to 0?
+    c['predorpost'] = 0
     
     ##########################################
     ## START GENERAL CONFIGURABLE VARIABLES ##

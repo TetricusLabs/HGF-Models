@@ -8,4 +8,5 @@ import HGF.hgf_sim
 
 
 import pkg_resources
-__version__ = pkg_resources.require("HGF")[0].version
+__version__ = 1
+#  pkg_resources.require("HGF")[0].version
