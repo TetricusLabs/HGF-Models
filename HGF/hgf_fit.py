@@ -139,6 +139,8 @@ def _storedfunc(a):
                 'hgf'                   : hgf,
                 'softmax_mu3'           : softmax_mu3,
                 'ehgf'                  : ehgf,
+                'hgf_ar1_binary_mab'    : hgf_ar1_binary_mab,
+                'hgf_ar1_binary_mab_transp': hgf_ar1_binary_mab_transp,
                 'hgf_transp'            : hgf_transp,
                 'softmax_mu3_transp'    : softmax_mu3_transp,
                 'unitsq_sqm_transp'     : unitsq_sqm_transp,

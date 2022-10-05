@@ -30,6 +30,80 @@ def softmax_mu3_config():
     c['transp_prc_fun'] = 'softmax_mu3_transp'
     return c
 
+def hgf_ar1_binary_mab_config(): 
+
+    c = {}
+    # Model name
+    c.model = 'hgf_ar1_binary_mab'
+    # Number of levels (minimum: 3)
+    c.n_levels = 3
+    # Number of bandits
+    c.n_bandits = 3
+    # Coupling
+    # This may only be set to true if c.n_bandits is set to 2 above. If
+    # true, it means that the two bandits' winning probabilities are
+    # coupled in the sense that they add to 1 and are both updated on
+    # each trial even though only the outcome for one of them is observed.
+    c.coupled = False
+    # Input intervals
+    # If input intervals are irregular, the last column of the input
+    # matrix u has to contain the interval between inputs k-1 and k
+    # in the k-th row, and this flag has to be set to true
+    c.irregular_intervals = False
+    # Sufficient statistics of Gaussian parameter priors
+    
+    # Initial mus and sigmas
+    # Format: row vectors of length n_levels
+    # For all but the first two levels, this is usually best
+    # kept fixed to 1 (determines origin on x_i-scale). The
+    # first level is NaN because it is determined by the second,
+    # and the second implies neutrality between outcomes when it
+    # is centered at 0.
+    c.mu_0mu = np.array([np.NaN,0,1])
+    c.mu_0sa = np.array([np.NaN,1,1])
+    c.logsa_0mu = np.array([np.NaN,np.log(0.1),np.log(1)])
+    c.logsa_0sa = np.array([np.NaN,1,1])
+    # Phis
+    # Format: row vector of length n_levels.
+    # Undefined (therefore NaN) at the first level.
+    # Fix this to zero (-Inf in logit space) to set to zero.
+    c.logitphimu = np.array([np.NaN,tapas_logit(0.4,1),tapas_logit(0.2,1)])
+    c.logitphisa = np.array([np.NaN,1,1])
+    # ms
+    # Format: row vector of length n_levels.
+    # This should be fixed for all levels where the omega of
+    # the next lowest level is not fixed because that offers
+    # an alternative parametrization of the same model.
+    c.mmu = np.array([np.NaN,c.mu_0mu(2),c.mu_0mu(3)])
+    c.msa = np.array([np.NaN,0,0])
+    # Kappas
+    # Format: row vector of length n_levels-1.
+    # Fixing log(kappa1) to log(1) leads to the original HGF model.
+    # Higher log(kappas) should be fixed (preferably to log(1)) if the
+    # observation model does not use mu_i+1 (kappa then determines the
+    # scaling of x_i+1).
+    c.logkamu = np.array([np.log(1),np.log(0.6)])
+    c.logkasa = np.array([0,0.1])
+    # Omegas
+    # Format: row vector of length n_levels.
+    # Undefined (therefore NaN) at the first level.
+    c.ommu = np.array([np.NaN,- 2,- 2])
+    c.omsa = np.array([np.NaN,1,1])
+    # Gather prior settings in vectors
+    c.priormus = np.array([c.mu_0mu,c.logsa_0mu,c.logitphimu,c.mmu,c.logkamu,c.ommu])
+    c.priorsas = np.array([c.mu_0sa,c.logsa_0sa,c.logitphisa,c.msa,c.logkasa,c.omsa])
+    # Check whether we have the right number of priors
+    expectedLength = 5 * c.n_levels + (c.n_levels - 1)
+    if len(np.array([c.priormus,c.priorsas])) != 2 * expectedLength:
+        raise Exception('tapas:hgf:PriorDefNotMatchingLevels','Prior definition does not match number of levels.')
+    
+    # Model function handle
+    c.prc_fun = 'hgf_ar1_binary_mab'
+    # Handle to function that transforms perceptual parameters to their native space
+    # from the space they are estimated in
+    c.transp_prc_fun = 'hgf_ar1_binary_mab_transp'
+    return c
+
 def hgf_binary_config():
     """contains config for the Hierarchical Gaussian Filter (HGF)
     for binary inputs in the absence of perceptual uncertainty"""

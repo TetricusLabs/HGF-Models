@@ -30,8 +30,33 @@ stim_values = [4, 8]
 
 # create array to sture stimuli
 stims = np.empty(n_blocks * tpb)
-r = hgf_fit.fitModel([],
-                     stims,
-                     softmax_mu3_config,
-                     bayes_optimal_config, 
-                     quasinewton_optim_config)
+
+
+inf_states = np.random.rand(160, 3, 5, 4)
+# inf_states = np.full((160, 3, 5, 5), -1, dtype=np.int8)
+
+
+r = {}
+
+r['y'] = np.zeros((160, 1))
+r['u'] = np.zeros((160, 1))
+r['ign'] = np.array([])
+r['irr'] = np.array([], dtype=np.int8)
+r['c_prc'] = {}
+# x = SimpleNamespace()
+x = {}
+x['predorpost'] = 1
+x['model'] = 'softmax_mu3'
+x['priormus'] = np.array([])
+x['priorsas'] = np.array([])
+r['c_obs'] = x
+
+softmax_mu3(r, inf_states)
+# (r, inf_states)
+
+
+# r = hgf_fit.fitModel([],
+#                      stims,
+#                      softmax_mu3_config,
+#                      bayes_optimal_config, 
+#                      quasinewton_optim_config)
