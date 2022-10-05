@@ -2,4 +2,5 @@ build/**
 .venv/**
 dist/**
 __pycache__/**
+HGF/__pycache__/**
 HGF.egg-info/**
